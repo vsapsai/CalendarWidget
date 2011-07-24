@@ -6,10 +6,13 @@
 		<meta charset="utf-8">
 
 		<link rel="stylesheet" type="text/css" href="appearance.css">
+
+		<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/prototype/1.7.0.0/prototype.js"></script>
+		<script type="text/javascript" src="calendarWidget.js"></script>
 	</head>
 	<body>
 		<table class="calendar">
-			<caption>
+			<caption id="calendarTitle">
 				<a href="#" id="backButton">back</a>
 				<span>September</span>
 				<a href="#" id="forwardButton">fwd</a>
@@ -25,7 +28,7 @@
 					<th>S</th>
 				</tr>
 			</thead>
-			<tbody>
+			<tbody id="calendarGrid">
 				<tr>
 					<td class="disabled">25</td>
 					<td class="disabled">26</td>
