@@ -1,0 +1,6 @@
+# Ignore Vim helper files
+*.un~
+*.swp
+
+# Ignore Finder utility directory
+.DS_Store

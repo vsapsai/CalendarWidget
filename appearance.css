@@ -1,0 +1,34 @@
+/* calendar title */
+
+.calendar caption {
+	position: relative;
+}
+
+.calendar #backButton {
+	position: absolute;
+	left: 0px;
+}
+
+.calendar #forwardButton {
+	position: absolute;
+	right: 0px;
+}
+
+/* calendar grid */
+
+.calendar thead {
+	text-align: center;
+}
+
+.calendar tbody {
+	text-align: right;
+}
+
+.today {
+	background-color: rgb(255, 255, 182);
+	border: 1px dashed gray;
+}
+
+.disabled {
+	color: #818181;
+}
