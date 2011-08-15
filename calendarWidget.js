@@ -56,7 +56,8 @@ function buildCalendarForMonth(month, container)
 
 	// build head
 	var head = new Element('thead');
-	addRowToTable(head, $A(Calendar.DAYS_SHORT_NAMES).map(function(dayName)
+	var dayNames = rotateArray(Calendar.DAYS_SHORT_NAMES, Calendar.FIRST_DAY_OF_WEEK);
+	addRowToTable(head, $A(dayNames).map(function(dayName)
 	{
 		return new Element('th').update(dayName);
 	}));

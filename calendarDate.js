@@ -33,6 +33,13 @@ function daysInWeekBeforeDay(weekDay)
 	return (weekDay - Calendar.FIRST_DAY_OF_WEEK);
 }
 
+function rotateArray(array, elementsPutToEnd)
+{
+	var arrayCopy = $A(array).clone();
+	var removed = arrayCopy.splice(0, elementsPutToEnd);
+	return arrayCopy.concat(removed);
+}
+
 var CalendarDate = Class.create({
 	initialize: function(/*[month, year]*/)
 	{
