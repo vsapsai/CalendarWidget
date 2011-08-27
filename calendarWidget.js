@@ -44,16 +44,17 @@ function selectDay(event)
 	event.stop();
 }
 
-function buildCalendarForMonth(month, container)
+function buildCalendarForMonth(month, destinationContainer)
 {
-	var calendar = new Element('table', {'class': 'calendar'});
+	var container = new Element('div', {'class': 'calendar'});
 	// build title
-	var title = new Element('caption', {'id': 'calendarTitle'});
+	var title = new Element('div', {'id': 'calendarTitle', 'class': 'caption'});
 	title.appendChild(new Element('a', {'id': 'backButton', 'href': '#'}).update('back'));
 	title.appendChild(new Element('span').update(month.monthName()));
 	title.appendChild(new Element('a', {'id': 'forwardButton', 'href': '#'}).update('fwd'));
-	calendar.appendChild(title);
+	container.appendChild(title);
 
+	var calendar = new Element('table', {'class': 'grid'});
 	// build head
 	var head = new Element('thead');
 	var dayNames = rotateArray(Calendar.DAYS_SHORT_NAMES, Calendar.FIRST_DAY_OF_WEEK);
@@ -102,6 +103,7 @@ function buildCalendarForMonth(month, container)
 	}
 	calendar.appendChild(grid);
 	container.appendChild(calendar);
+	destinationContainer.appendChild(container);
 }
 
 document.observe("dom:loaded", function()

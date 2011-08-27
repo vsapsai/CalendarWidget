@@ -1,17 +1,24 @@
+/* calendar layout */
+.calendar {
+	display: table;
+}
+
+.calendar .caption, .calendar .grid {
+	display: table-row;
+}
+
 /* calendar title */
 
-.calendar caption {
-	position: relative;
+.calendar .caption {
+	text-align: center;
 }
 
 .calendar #backButton {
-	position: absolute;
-	left: 0px;
+	float: left;
 }
 
 .calendar #forwardButton {
-	position: absolute;
-	right: 0px;
+	float: right;
 }
 
 /* calendar grid */
