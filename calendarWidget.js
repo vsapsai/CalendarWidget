@@ -49,9 +49,14 @@ function buildCalendarForMonth(month, destinationContainer)
 	var container = new Element('div', {'class': 'calendar'});
 	// build title
 	var title = new Element('div', {'id': 'calendarTitle', 'class': 'caption'});
-	title.appendChild(new Element('a', {'id': 'backButton', 'href': '#'}).update('back'));
+	title.observe('click', goToHigherLevel);
+	var backButton = new Element('a', {'id': 'backButton', 'href': '#'}).update('back');
+	backButton.observe('click', goPrevious);
+	title.appendChild(backButton);
 	title.appendChild(new Element('span').update(month.monthName()));
-	title.appendChild(new Element('a', {'id': 'forwardButton', 'href': '#'}).update('fwd'));
+	var forwardButton = new Element('a', {'id': 'forwardButton', 'href': '#'}).update('fwd');
+	forwardButton.observe('click', goNext);
+	title.appendChild(forwardButton);
 	container.appendChild(title);
 
 	var calendar = new Element('table', {'class': 'grid'});
@@ -66,6 +71,7 @@ function buildCalendarForMonth(month, destinationContainer)
 
 	// build calendar grid
 	var grid = new Element('tbody', {'id': 'calendarGrid'});
+	grid.observe('click', selectDay);
 	// --build mixed first week
 	var daysFromPreviousMonth = daysInWeekBeforeDay(month.dayOfWeekMonthStarts());
 	var previousMonth = month.previousMonth();
