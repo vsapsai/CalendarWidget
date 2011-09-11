@@ -3,7 +3,7 @@
 	display: table;
 }
 
-.calendar .caption, .calendar .grid {
+.calendar .caption {
 	display: table-row;
 }
 
@@ -38,4 +38,18 @@
 
 .disabled {
 	color: #818181;
+}
+
+/* animation-related */
+.horizontalAnimatedContainer {
+	position: relative;
+	overflow: hidden;
+}
+
+.horizontalAnimatedContainer .grid {
+	position: absolute;
+}
+
+.horizontalAnimatedContainer .gridPlaceholder {
+	visibility: hidden;
 }

@@ -29,12 +29,16 @@ function goToHigherLevel(event)
 function goNext(event)
 {
 	console.log("goNext");
+	var table = this.up(2).down("table").next();
+	new Effect.Move(table, {'x': -60, 'y': 0});
 	event.stop();
 }
 
 function goPrevious(event)
 {
 	console.log("goPrevious");
+	var table = this.up(2).down("table").next();
+	new Effect.Move(table, {'x': 60, 'y': 0});
 	event.stop();
 }
 
@@ -58,8 +62,31 @@ function buildCalendarForMonth(month, destinationContainer)
 	forwardButton.observe('click', goNext);
 	title.appendChild(forwardButton);
 	container.appendChild(title);
+	var gridsContainer = new Element('div', {'class': 'horizontalAnimatedContainer'});
+	buildGridPlaceholder(gridsContainer);
+	buildCalendarGridForMonth(month, gridsContainer, 0);
+	container.appendChild(gridsContainer);
+	destinationContainer.appendChild(container);
+}
 
-	var calendar = new Element('table', {'class': 'grid'});
+function buildGridPlaceholder(container)
+{
+	container.update("<table class=\"gridPlaceholder\">\
+						<thead><tr><th>M</th><th>T</th><th>W</th><th>T</th><th>F</th><th>S</th><th>S</th></tr></thead>\
+						<tbody id=\"calendarGrid\">\
+							<tr><td>29</td><td>30</td><td>31</td><td>1</td><td>2</td><td>3</td><td>4</td></tr>\
+							<tr><td>5</td><td>6</td><td>7</td><td>8</td><td>9</td><td>10</td><td>11</td></tr>\
+							<tr><td>12</td><td>13</td><td>14</td><td>15</td><td>16</td><td>17</td><td>18</td></tr>\
+							<tr><td>19</td><td>20</td><td>21</td><td>22</td><td>23</td><td>24</td><td>25</td></tr>\
+							<tr><td>26</td><td>27</td><td>28</td><td>29</td><td>30</td><td>1</td><td>2</td></tr>\
+							<tr><td>3</td><td>4</td><td>5</td><td>6</td><td>7</td><td>8</td><td>9</td></tr>\
+						</tbody>\
+					</table>");
+}
+
+function buildCalendarGridForMonth(month, container, xOffset)
+{
+	var calendar = new Element('table', {'class': 'grid', 'style': 'top: 0; left:' + xOffset + ';'});
 	// build head
 	var head = new Element('thead');
 	var dayNames = rotateArray(Calendar.DAYS_SHORT_NAMES, Calendar.FIRST_DAY_OF_WEEK);
@@ -109,7 +136,6 @@ function buildCalendarForMonth(month, destinationContainer)
 	}
 	calendar.appendChild(grid);
 	container.appendChild(calendar);
-	destinationContainer.appendChild(container);
 }
 
 document.observe("dom:loaded", function()
