@@ -4,7 +4,7 @@ dojo.provide("CalendarProject.tests.CalendarDateTest");
 dojo.require("dojo.io.script");
 // Relative to util/doh/runner.html
 dojo.io.script.get({
-       url:"../../../../calendarDate.js"
+       url:"../../../../CalendarDate.js"
 });
 dojo.io.script.get({
        url:"../../../prototype/prototype.js"
