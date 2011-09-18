@@ -59,14 +59,14 @@ var CalendarDate = Class.create({
 		}
 		month = limitValueToRange(month, Calendar.MIN_MONTH, Calendar.MAX_MONTH);
 		year = limitValueToRange(year, Calendar.MIN_YEAR, Calendar.MAX_YEAR);
-		this.month = month;
-		this.year = year;
+		this._month = month;
+		this._year = year;
 	},
 	
 	previousMonth: function()
 	{
-		var month = this.month - 1;
-		var year = this.year;
+		var month = this.month() - 1;
+		var year = this.year();
 		if (month < Calendar.MIN_MONTH)
 		{
 			year--;
@@ -82,8 +82,8 @@ var CalendarDate = Class.create({
 
 	nextMonth: function()
 	{
-		var month = this.month + 1;
-		var year = this.year;
+		var month = this.month() + 1;
+		var year = this.year();
 		if (month > Calendar.MAX_MONTH)
 		{
 			year++;
@@ -99,12 +99,13 @@ var CalendarDate = Class.create({
 
 	daysInMonth: function()
 	{
-		var result = Calendar.DAYS_IN_MONTH[this.month];
-		if (1 == this.month) // February
+		var result = Calendar.DAYS_IN_MONTH[this.month()];
+		if (1 == this.month()) // February
 		{
-			var divisibleBy4 = ((this.year % 4) == 0);
-			var divisibleBy100 = ((this.year % 100) == 0);
-			var divisibleBy400 = ((this.year % 400) == 0);
+			var year = this.year();
+			var divisibleBy4 = ((year % 4) == 0);
+			var divisibleBy100 = ((year % 100) == 0);
+			var divisibleBy400 = ((year % 400) == 0);
 			var isLeapYear = (divisibleBy400 || (divisibleBy4 && !divisibleBy100));
 			if (isLeapYear)
 			{
@@ -116,12 +117,22 @@ var CalendarDate = Class.create({
 
 	dayOfWeekMonthStarts: function()
 	{
-		var monthStart = new Date(this.year, this.month, 1);
+		var monthStart = new Date(this.year(), this.month(), 1);
 		return monthStart.getDay();
+	},
+
+	month: function()
+	{
+		return this._month;
+	},
+	
+	year: function()
+	{
+		return this._year;
 	},
 
 	monthName: function()
 	{
-		return Calendar.MONTH_NAMES[this.month];
+		return Calendar.MONTH_NAMES[this.month()];
 	}
 });
