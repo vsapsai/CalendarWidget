@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>CalendarWidget Browser Tests</title>
+		<script type="text/javascript" src="dojotoolkit/dojo/dojo.js"
+				djConfig="isDebug: true, parseOnLoad: true"></script>
+		<script type="text/javascript">
+		// vsapsai: Put tests into .html file because keeping them in separate .js file requires some arcane refresh in browser.
+		dojo.provide("CalendarProject.tests.CalendarWidgetTest");
+
+		dojo.require("doh.runner");
+		// Import in the code being tested
+		dojo.require("dojo.io.script");
+		// Relative to CalendarWidgetTest.html
+		dojo.io.script.get({url: "prototype/prototype.js"});
+		dojo.io.script.get({url: "../CalendarWidget.js"});
+
+		dojo.addOnLoad(function()
+		{
+			doh.register("CalendarProject.tests.CalendarWidgetTest", [
+
+				function test_tableCells()
+				{
+					// TODO(vsapsai): elaborate test
+					var cells = tableCells(2, 4);
+					doh.assertEqual(3, cells.size());
+				}
+			]);
+			// Execute D.O.H. in remote .html file.
+			doh.run();
+		});
+		</script>
+	</head>
+	<body>
+		<div>Test</div>
+	</body>
+</html>

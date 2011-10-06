@@ -3,10 +3,8 @@ dojo.provide("CalendarProject.tests.module");
 
 try
 {
-//	//Load in the demoFunctions module test.
 	dojo.require("CalendarProject.tests.CalendarDateTest");
-//	//Load in the widget tests.
-//	dojo.require("demo.doh.tests.widgets.DemoWidget");
+	dojo.require("CalendarProject.tests.CalendarWidgetTestBootstrap")
 }
 catch (e)
 {
