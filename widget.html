@@ -11,6 +11,18 @@
 		<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/scriptaculous/1.9.0/scriptaculous.js"></script>
 		<script type="text/javascript" src="CalendarDate.js"></script>
 		<script type="text/javascript" src="CalendarWidget.js"></script>
+		<script type="text/javascript">
+			document.observe("dom:loaded", function()
+			{
+				$('calendarTitle').observe('click', goToHigherLevel);
+				$('backButton').observe('click', goPrevious);
+				$('forwardButton').observe('click', goNext);
+				$('calendarGrid').observe('click', selectDay);
+
+				var currentMonth = new CalendarDate();
+				buildCalendarForMonth(currentMonth, $('calendarPlaceholder'));
+			});
+		</script>
 	</head>
 	<body>
 		<div class="calendar">

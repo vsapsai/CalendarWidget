@@ -137,15 +137,3 @@ function buildCalendarGridForMonth(month, container, xOffset)
 	calendar.appendChild(grid);
 	container.appendChild(calendar);
 }
-
-document.observe("dom:loaded", function()
-{
-	$('calendarTitle').observe('click', goToHigherLevel);
-	$('backButton').observe('click', goPrevious);
-	$('forwardButton').observe('click', goNext);
-	$('calendarGrid').observe('click', selectDay);
-
-	var currentMonth = new CalendarDate();
-	buildCalendarForMonth(currentMonth, $('calendarPlaceholder'));
-});
-
