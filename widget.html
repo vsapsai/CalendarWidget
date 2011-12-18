@@ -14,13 +14,7 @@
 		<script type="text/javascript">
 			document.observe("dom:loaded", function()
 			{
-				$('calendarTitle').observe('click', goToHigherLevel);
-				$('backButton').observe('click', goPrevious);
-				$('forwardButton').observe('click', goNext);
-				$('calendarGrid').observe('click', selectDay);
-
-				var currentMonth = new CalendarDate();
-				buildCalendarForMonth(currentMonth, $('calendarPlaceholder'));
+				new CalendarWidget($('calendarPlaceholder'));
 			});
 		</script>
 	</head>
