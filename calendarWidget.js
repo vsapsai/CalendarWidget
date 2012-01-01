@@ -22,29 +22,56 @@ function tableCells(from, to, attributes)
 var CalendarWidget = Class.create({
 	initialize: function(widgetContainer)
 	{
-		var currentMonth = new CalendarDate();
-		this._buildCalendarForMonth(currentMonth, $(widgetContainer));
+		this._currentMonth = new CalendarDate();
+		this._buildCalendarForMonth(this._currentMonth, $(widgetContainer));
 	},
 	
 	_buildCalendarForMonth: function(month, destinationContainer)
 	{
 		var container = new Element('div', {'class': 'calendar'});
-		// build title
+		destinationContainer.appendChild(container);
+
+		var previousMonth = month.previousMonth();
+		var nextMonth = month.nextMonth();
+		this._buildTitleAndNavigation(month, container, (null != previousMonth), (null != nextMonth));
+		
+		var gridsContainer = new Element('div', {'class': 'horizontalAnimatedContainer'});
+		container.appendChild(gridsContainer);
+		this._buildGridPlaceholder(gridsContainer);
+		this._previousMonthGrid = ((null != previousMonth) ?
+							this._buildCalendarGridForMonth(previousMonth, gridsContainer, -this._calendarGridWidth())
+							: null);
+		this._currentMonthGrid = this._buildCalendarGridForMonth(month, gridsContainer, 0);
+		this._nextMonthGrid = ((null != nextMonth) ?
+							this._buildCalendarGridForMonth(nextMonth, gridsContainer, this._calendarGridWidth())
+							: null);
+	},
+	
+	_buildTitleAndNavigation: function(month, container, hasPreviousMonth, hasNextMonth)
+	{
 		var title = new Element('div', {'id': 'calendarTitle', 'class': 'caption'});
 		title.observe('click', this.goToHigherLevel.bindAsEventListener(this));
-		var backButton = new Element('a', {'id': 'backButton', 'href': '#'}).update('back');
-		backButton.observe('click', this.goPrevious.bindAsEventListener(this));
-		title.appendChild(backButton);
-		title.appendChild(new Element('span').update(month.monthName()));
-		var forwardButton = new Element('a', {'id': 'forwardButton', 'href': '#'}).update('fwd');
-		forwardButton.observe('click', this.goNext.bindAsEventListener(this));
-		title.appendChild(forwardButton);
+		if (hasPreviousMonth)
+		{
+			var backButton = new Element('a', {'id': 'backButton', 'href': '#'}).update('back');
+			backButton.observe('click', this.goPrevious.bindAsEventListener(this));
+			title.appendChild(backButton);
+		}
+		var monthNameLabel = new Element('span').update(month.monthName());
+		title.appendChild(monthNameLabel);
+		this._monthNameLabel = monthNameLabel;
+		if (hasNextMonth)
+		{
+			var forwardButton = new Element('a', {'id': 'forwardButton', 'href': '#'}).update('fwd');
+			forwardButton.observe('click', this.goNext.bindAsEventListener(this));
+			title.appendChild(forwardButton);
+		}
 		container.appendChild(title);
-		var gridsContainer = new Element('div', {'class': 'horizontalAnimatedContainer'});
-		this._buildGridPlaceholder(gridsContainer);
-		this._buildCalendarGridForMonth(month, gridsContainer, 0);
-		container.appendChild(gridsContainer);
-		destinationContainer.appendChild(container);
+	},
+	
+	_calendarGridWidth: function()
+	{
+		return this.__calendarGridWidth;
 	},
 	
 	_buildGridPlaceholder: function(container)
@@ -60,11 +87,12 @@ var CalendarWidget = Class.create({
 								"<tr><td>3</td><td>4</td><td>5</td><td>6</td><td>7</td><td>8</td><td>9</td></tr>" +
 							"</tbody>" +
 						"</table>");
+		this.__calendarGridWidth = container.select("table.gridPlaceholder").first().getWidth();
 	},
 
 	_buildCalendarGridForMonth: function(month, container, xOffset)
 	{
-		var calendar = new Element('table', {'class': 'grid', 'style': 'top: 0; left:' + xOffset + ';'});
+		var calendar = new Element('table', {'class': 'grid', 'style': 'top: 0; left:' + xOffset + 'px;'});
 		// build head
 		var head = new Element('thead');
 		var dayNames = rotateArray(Calendar.DAYS_SHORT_NAMES, Calendar.FIRST_DAY_OF_WEEK);
@@ -114,9 +142,11 @@ var CalendarWidget = Class.create({
 		}
 		calendar.appendChild(grid);
 		container.appendChild(calendar);
+		return calendar;
 	},
 	
 	// event handlers
+	//TODO: disable actions during animation
 	goToHigherLevel: function(event)
 	{
 		console.log("goToHigherLevel");
@@ -125,18 +155,62 @@ var CalendarWidget = Class.create({
 
 	goNext: function(event)
 	{
-		console.log("goNext");
-		// var table = this.up(2).down("table").next();
-		// new Effect.Move(table, {'x': -60, 'y': 0});
 		event.stop();
+		var disappearingTable = this._currentMonthGrid;
+		var appearingTable = this._nextMonthGrid;
+		var animationOffset = this._calendarGridWidth();
+		var moveAnimationOptions = {'x': -animationOffset, 'y': 0, sync: true};
+		new Effect.Parallel([
+			new Effect.Move(disappearingTable, moveAnimationOptions),
+			new Effect.Move(appearingTable, moveAnimationOptions)
+		], {afterFinish: this._goNextAnimationDidEnd.bind(this)});
+	},
+	
+	_goNextAnimationDidEnd: function(effect)
+	{
+		this._currentMonth = this._currentMonth.nextMonth();
+		this._monthNameLabel.update(this._currentMonth.monthName());
+		if (this._previousMonthGrid)
+		{
+			this._previousMonthGrid.remove();
+		}
+		this._previousMonthGrid = this._currentMonthGrid;
+		this._currentMonthGrid = this._nextMonthGrid;
+		var nextMonth = this._currentMonth.nextMonth();
+		var gridsContainer = this._currentMonthGrid.up();
+		this._nextMonthGrid = ((null != nextMonth) ?
+							this._buildCalendarGridForMonth(nextMonth, gridsContainer, this._calendarGridWidth())
+							: null);
 	},
 
 	goPrevious: function(event)
 	{
-		console.log("goPrevious");
-		// var table = this.up(2).down("table").next();
-		// new Effect.Move(table, {'x': 60, 'y': 0});
 		event.stop();
+		var disappearingTable = this._currentMonthGrid;
+		var appearingTable = this._previousMonthGrid;
+		var animationOffset = this._calendarGridWidth();
+		var moveAnimationOptions = {'x': animationOffset, 'y': 0, sync: true};
+		new Effect.Parallel([
+			new Effect.Move(disappearingTable, moveAnimationOptions),
+			new Effect.Move(appearingTable, moveAnimationOptions)
+		], {afterFinish: this._goPreviousAnimationDidEnd.bind(this)});
+	},
+	
+	_goPreviousAnimationDidEnd: function(effect)
+	{
+		this._currentMonth = this._currentMonth.previousMonth();
+		this._monthNameLabel.update(this._currentMonth.monthName());
+		if (this._nextMonthGrid)
+		{
+			this._nextMonthGrid.remove();
+		}
+		this._nextMonthGrid = this._currentMonthGrid;
+		this._currentMonthGrid = this._previousMonthGrid;
+		var previousMonth = this._currentMonth.previousMonth();
+		var gridsContainer = this._currentMonthGrid.up();
+		this._previousMonthGrid = ((null != previousMonth) ?
+							this._buildCalendarGridForMonth(previousMonth, gridsContainer, -this._calendarGridWidth())
+							: null);
 	},
 
 	selectDay: function(event)
