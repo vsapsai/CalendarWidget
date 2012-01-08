@@ -53,7 +53,9 @@ var CalendarWidget = Class.create({
 		title.observe('click', this.goToHigherLevel.bindAsEventListener(this));
 		if (hasPreviousMonth)
 		{
-			var backButton = new Element('a', {'id': 'backButton', 'href': '#'}).update('back');
+			var backButton = new Element('a', {'id': 'backButton', 'href': '#'});
+			var backButtonImage = new Element('img', {'src': 'leftArrow.svg'});
+			backButton.appendChild(backButtonImage);
 			backButton.observe('click', this.goPrevious.bindAsEventListener(this));
 			title.appendChild(backButton);
 		}
@@ -62,7 +64,9 @@ var CalendarWidget = Class.create({
 		this._monthNameLabel = monthNameLabel;
 		if (hasNextMonth)
 		{
-			var forwardButton = new Element('a', {'id': 'forwardButton', 'href': '#'}).update('fwd');
+			var forwardButton = new Element('a', {'id': 'forwardButton', 'href': '#'});
+			var forwardButtonImage = new Element('img', {'src': 'rightArrow.svg'});
+			forwardButton.appendChild(forwardButtonImage);
 			forwardButton.observe('click', this.goNext.bindAsEventListener(this));
 			title.appendChild(forwardButton);
 		}

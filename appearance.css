@@ -21,6 +21,11 @@
 	float: right;
 }
 
+.calendar #forwardButton img, .calendar #backButton img {
+	width: 10px;
+	height: 10px;
+}
+
 /* calendar grid */
 
 .calendar thead {
