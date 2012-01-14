@@ -26,6 +26,10 @@
 	height: 10px;
 }
 
+.calendar #forwardButton.disabled img, .calendar #backButton.disabled img {
+	opacity: 0.5;
+}
+
 /* calendar grid */
 
 .calendar thead {
