@@ -33,7 +33,7 @@ var CalendarWidget = Class.create({
 
 		var previousMonth = month.previousMonth();
 		var nextMonth = month.nextMonth();
-		this._buildTitleAndNavigation(month, container, (null != previousMonth), (null != nextMonth));
+		this._buildTitleAndNavigation(container, (null != previousMonth), (null != nextMonth));
 		
 		var gridsContainer = new Element('div', {'class': 'horizontalAnimatedContainer'});
 		container.appendChild(gridsContainer);
@@ -47,7 +47,7 @@ var CalendarWidget = Class.create({
 							: null);
 	},
 	
-	_buildTitleAndNavigation: function(month, container, hasPreviousMonth, hasNextMonth)
+	_buildTitleAndNavigation: function(container, hasPreviousMonth, hasNextMonth)
 	{
 		var title = new Element('div', {'id': 'calendarTitle', 'class': 'caption'});
 		title.observe('click', this.goToHigherLevel.bindAsEventListener(this));
@@ -59,9 +59,10 @@ var CalendarWidget = Class.create({
 			backButton.observe('click', this.goPrevious.bindAsEventListener(this));
 			title.appendChild(backButton);
 		}
-		var monthNameLabel = new Element('span').update(month.monthName());
+		var monthNameLabel = new Element('span');
 		title.appendChild(monthNameLabel);
 		this._monthNameLabel = monthNameLabel;
+		this._updateMonthNameLabel();
 		if (hasNextMonth)
 		{
 			var forwardButton = new Element('a', {'id': 'forwardButton', 'href': '#'});
@@ -137,6 +138,11 @@ var CalendarWidget = Class.create({
 		return calendar;
 	},
 	
+	_updateMonthNameLabel: function()
+	{
+		this._monthNameLabel.update(this._currentMonth.monthName() + ', ' + this._currentMonth.year());
+	},
+	
 	// event handlers
 	//TODO: disable actions during animation
 	goToHigherLevel: function(event)
@@ -161,7 +167,7 @@ var CalendarWidget = Class.create({
 	_goNextAnimationDidEnd: function(effect)
 	{
 		this._currentMonth = this._currentMonth.nextMonth();
-		this._monthNameLabel.update(this._currentMonth.monthName());
+		this._updateMonthNameLabel();
 		if (this._previousMonthGrid)
 		{
 			this._previousMonthGrid.remove();
@@ -191,7 +197,7 @@ var CalendarWidget = Class.create({
 	_goPreviousAnimationDidEnd: function(effect)
 	{
 		this._currentMonth = this._currentMonth.previousMonth();
-		this._monthNameLabel.update(this._currentMonth.monthName());
+		this._updateMonthNameLabel();
 		if (this._nextMonthGrid)
 		{
 			this._nextMonthGrid.remove();
