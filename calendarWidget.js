@@ -37,7 +37,7 @@ var CalendarWidget = Class.create({
 		
 		var gridsContainer = new Element('div', {'class': 'horizontalAnimatedContainer'});
 		container.appendChild(gridsContainer);
-		this._buildGridPlaceholder(gridsContainer);
+		this._setCalendarGridWidth(gridsContainer.getWidth());
 		this._previousMonthGrid = ((null != previousMonth) ?
 							this._buildCalendarGridForMonth(previousMonth, gridsContainer, -this._calendarGridWidth())
 							: null);
@@ -72,26 +72,14 @@ var CalendarWidget = Class.create({
 		}
 		container.appendChild(title);
 	},
-	
+
 	_calendarGridWidth: function()
 	{
 		return this.__calendarGridWidth;
 	},
-	
-	_buildGridPlaceholder: function(container)
+	_setCalendarGridWidth: function(width)
 	{
-		container.update("<table class=\"gridPlaceholder\">" +
-							"<thead><tr><th>M</th><th>T</th><th>W</th><th>T</th><th>F</th><th>S</th><th>S</th></tr></thead>" +
-							"<tbody id=\"calendarGrid\">" +
-								"<tr><td>29</td><td>30</td><td>31</td><td>1</td><td>2</td><td>3</td><td>4</td></tr>" +
-								"<tr><td>5</td><td>6</td><td>7</td><td>8</td><td>9</td><td>10</td><td>11</td></tr>" +
-								"<tr><td>12</td><td>13</td><td>14</td><td>15</td><td>16</td><td>17</td><td>18</td></tr>" +
-								"<tr><td>19</td><td>20</td><td>21</td><td>22</td><td>23</td><td>24</td><td>25</td></tr>" +
-								"<tr><td>26</td><td>27</td><td>28</td><td>29</td><td>30</td><td>1</td><td>2</td></tr>" +
-								"<tr><td>3</td><td>4</td><td>5</td><td>6</td><td>7</td><td>8</td><td>9</td></tr>" +
-							"</tbody>" +
-						"</table>");
-		this.__calendarGridWidth = container.select("table.gridPlaceholder").first().getWidth();
+		this.__calendarGridWidth = width;
 	},
 
 	_buildCalendarGridForMonth: function(month, container, xOffset)

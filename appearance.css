@@ -49,6 +49,11 @@
 	color: #818181;
 }
 
+.horizontalAnimatedContainer, .horizontalAnimatedContainer .grid {
+	width: 142px;
+	height: 158px;
+}
+
 /* animation-related */
 .horizontalAnimatedContainer {
 	position: relative;
@@ -57,8 +62,4 @@
 
 .horizontalAnimatedContainer .grid {
 	position: absolute;
-}
-
-.horizontalAnimatedContainer .gridPlaceholder {
-	visibility: hidden;
 }
