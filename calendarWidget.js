@@ -24,6 +24,7 @@ var CalendarWidget = Class.create({
 	{
 		this._currentMonth = new CalendarDate();
 		this._buildCalendarForMonth(this._currentMonth, $(widgetContainer));
+		this._isRunningAnimation = false;
 	},
 	
 	_buildCalendarForMonth: function(month, destinationContainer)
@@ -154,6 +155,11 @@ var CalendarWidget = Class.create({
 	goNext: function(event)
 	{
 		event.stop();
+		if (this._isRunningAnimation)
+		{
+			return;
+		}
+		this._isRunningAnimation = true;
 		var disappearingTable = this._currentMonthGrid;
 		var appearingTable = this._nextMonthGrid;
 		var animationOffset = this._calendarGridWidth();
@@ -179,11 +185,17 @@ var CalendarWidget = Class.create({
 		this._nextMonthGrid = ((null != nextMonth) ?
 							this._buildCalendarGridForMonth(nextMonth, gridsContainer, this._calendarGridWidth())
 							: null);
+		this._isRunningAnimation = false;
 	},
 
 	goPrevious: function(event)
 	{
 		event.stop();
+		if (this._isRunningAnimation)
+		{
+			return;
+		}
+		this._isRunningAnimation = true;
 		var disappearingTable = this._currentMonthGrid;
 		var appearingTable = this._previousMonthGrid;
 		var animationOffset = this._calendarGridWidth();
@@ -209,6 +221,7 @@ var CalendarWidget = Class.create({
 		this._previousMonthGrid = ((null != previousMonth) ?
 							this._buildCalendarGridForMonth(previousMonth, gridsContainer, -this._calendarGridWidth())
 							: null);
+		this._isRunningAnimation = false;
 	},
 
 	selectDay: function(event)
