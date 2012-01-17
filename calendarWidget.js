@@ -25,6 +25,7 @@ var CalendarWidget = Class.create({
 		this._currentMonth = new CalendarDate();
 		this._buildCalendarForMonth(this._currentMonth, $(widgetContainer));
 		this._isRunningAnimation = false;
+		this._movementDirectionAfterAnimation = 0;
 	},
 	
 	_buildCalendarForMonth: function(month, destinationContainer)
@@ -154,9 +155,13 @@ var CalendarWidget = Class.create({
 
 	goNext: function(event)
 	{
-		event.stop();
+		if (event)
+		{
+			event.stop();
+		}
 		if (this._isRunningAnimation)
 		{
+			this._movementDirectionAfterAnimation = 1;
 			return;
 		}
 		this._isRunningAnimation = true;
@@ -186,13 +191,18 @@ var CalendarWidget = Class.create({
 							this._buildCalendarGridForMonth(nextMonth, gridsContainer, this._calendarGridWidth())
 							: null);
 		this._isRunningAnimation = false;
+		this._moveAfterAnimationDidEnd();
 	},
 
 	goPrevious: function(event)
 	{
-		event.stop();
+		if (event)
+		{
+			event.stop();
+		}
 		if (this._isRunningAnimation)
 		{
+			this._movementDirectionAfterAnimation = -1;
 			return;
 		}
 		this._isRunningAnimation = true;
@@ -222,6 +232,21 @@ var CalendarWidget = Class.create({
 							this._buildCalendarGridForMonth(previousMonth, gridsContainer, -this._calendarGridWidth())
 							: null);
 		this._isRunningAnimation = false;
+		this._moveAfterAnimationDidEnd();
+	},
+	
+	_moveAfterAnimationDidEnd: function()
+	{
+		var movementDirection = this._movementDirectionAfterAnimation;
+		this._movementDirectionAfterAnimation = 0;
+		if (movementDirection > 0)
+		{
+			this.goNext();
+		}
+		else if (movementDirection < 0)
+		{
+			this.goPrevious();
+		}
 	},
 
 	selectDay: function(event)
