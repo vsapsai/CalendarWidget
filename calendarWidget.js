@@ -40,13 +40,9 @@ var CalendarWidget = Class.create({
 		var gridsContainer = new Element('div', {'class': 'horizontalAnimatedContainer'});
 		container.appendChild(gridsContainer);
 		this._setCalendarGridWidth(gridsContainer.getWidth());
-		this._previousMonthGrid = ((null != previousMonth) ?
-							this._buildCalendarGridForMonth(previousMonth, gridsContainer, -this._calendarGridWidth())
-							: null);
+		this._previousMonthGrid = this._buildCalendarGridForMonth(previousMonth, gridsContainer, -this._calendarGridWidth());
 		this._currentMonthGrid = this._buildCalendarGridForMonth(month, gridsContainer, 0);
-		this._nextMonthGrid = ((null != nextMonth) ?
-							this._buildCalendarGridForMonth(nextMonth, gridsContainer, this._calendarGridWidth())
-							: null);
+		this._nextMonthGrid = this._buildCalendarGridForMonth(nextMonth, gridsContainer, this._calendarGridWidth());
 	},
 	
 	_buildTitleAndNavigation: function(container, hasPreviousMonth, hasNextMonth)
@@ -87,56 +83,60 @@ var CalendarWidget = Class.create({
 
 	_buildCalendarGridForMonth: function(month, container, xOffset)
 	{
-		var calendar = new Element('table', {'class': 'grid', 'style': 'top: 0; left:' + xOffset + 'px;'});
-		// build head
-		var head = new Element('thead');
-		var dayNames = rotateArray(Calendar.DAYS_SHORT_NAMES, Calendar.FIRST_DAY_OF_WEEK);
-		addRowToTable(head, $A(dayNames).map(function(dayName)
+		var calendar = null;
+		if (null != month)
 		{
-			return new Element('th').update(dayName);
-		}));
-		calendar.appendChild(head);
+			calendar = new Element('table', {'class': 'grid', 'style': 'top: 0; left:' + xOffset + 'px;'});
+			// build head
+			var head = new Element('thead');
+			var dayNames = rotateArray(Calendar.DAYS_SHORT_NAMES, Calendar.FIRST_DAY_OF_WEEK);
+			addRowToTable(head, $A(dayNames).map(function(dayName)
+			{
+				return new Element('th').update(dayName);
+			}));
+			calendar.appendChild(head);
 
-		// build calendar grid
-		var grid = new Element('tbody', {'id': 'calendarGrid'});
-		grid.observe('click', this.selectDay.bindAsEventListener(this));
-		// --build mixed first week
-		var daysFromPreviousMonth = daysInWeekBeforeDay(month.dayOfWeekMonthStarts());
-		var previousMonth = month.previousMonth();
-		var previousMonthCells = tableCells(
-			previousMonth.daysInMonth() - daysFromPreviousMonth + 1,
-			previousMonth.daysInMonth(),
-			{'class': 'disabled'});
-		var firstWeekDaysCount = Calendar.DAYS_IN_WEEK - daysFromPreviousMonth;
-		previousMonthCells = previousMonthCells.concat(tableCells(1, firstWeekDaysCount));
-		addRowToTable(grid, previousMonthCells);
-		// --build full weeks
-		var currentMonthDaysLeft = month.daysInMonth() - firstWeekDaysCount;
-		var fullWeeksCount = Math.floor(currentMonthDaysLeft / Calendar.DAYS_IN_WEEK);
-		for (var i = 0; i < fullWeeksCount; i++)
-		{
-			addRowToTable(grid, tableCells(
-				firstWeekDaysCount + i * Calendar.DAYS_IN_WEEK + 1,
-				firstWeekDaysCount + (i + 1) * Calendar.DAYS_IN_WEEK));
+			// build calendar grid
+			var grid = new Element('tbody', {'id': 'calendarGrid'});
+			grid.observe('click', this.selectDay.bindAsEventListener(this));
+			// --build mixed first week
+			var daysFromPreviousMonth = daysInWeekBeforeDay(month.dayOfWeekMonthStarts());
+			var previousMonth = month.previousMonth();
+			var previousMonthCells = tableCells(
+				previousMonth.daysInMonth() - daysFromPreviousMonth + 1,
+				previousMonth.daysInMonth(),
+				{'class': 'disabled'});
+			var firstWeekDaysCount = Calendar.DAYS_IN_WEEK - daysFromPreviousMonth;
+			previousMonthCells = previousMonthCells.concat(tableCells(1, firstWeekDaysCount));
+			addRowToTable(grid, previousMonthCells);
+			// --build full weeks
+			var currentMonthDaysLeft = month.daysInMonth() - firstWeekDaysCount;
+			var fullWeeksCount = Math.floor(currentMonthDaysLeft / Calendar.DAYS_IN_WEEK);
+			for (var i = 0; i < fullWeeksCount; i++)
+			{
+				addRowToTable(grid, tableCells(
+					firstWeekDaysCount + i * Calendar.DAYS_IN_WEEK + 1,
+					firstWeekDaysCount + (i + 1) * Calendar.DAYS_IN_WEEK));
+			}
+			// --build mixed last week
+			var lastWeekDaysCount = (month.daysInMonth() - firstWeekDaysCount) % Calendar.DAYS_IN_WEEK;
+			var lastWeekCells = tableCells(
+				month.daysInMonth() - lastWeekDaysCount + 1,
+				month.daysInMonth());
+			var nextMonthDays = Calendar.DAYS_IN_WEEK - lastWeekDaysCount;
+			lastWeekCells = lastWeekCells.concat(tableCells(1, nextMonthDays, {'class': 'disabled'}));
+			addRowToTable(grid, lastWeekCells);
+			// --build additional week if necessary
+			if (fullWeeksCount + 2 < 6) // require calendar to have 6 weeks
+			{
+				addRowToTable(grid, tableCells(
+					nextMonthDays + 1,
+					nextMonthDays + Calendar.DAYS_IN_WEEK,
+					{'class': 'disabled'}));
+			}
+			calendar.appendChild(grid);
+			container.appendChild(calendar);
 		}
-		// --build mixed last week
-		var lastWeekDaysCount = (month.daysInMonth() - firstWeekDaysCount) % Calendar.DAYS_IN_WEEK;
-		var lastWeekCells = tableCells(
-			month.daysInMonth() - lastWeekDaysCount + 1,
-			month.daysInMonth());
-		var nextMonthDays = Calendar.DAYS_IN_WEEK - lastWeekDaysCount;
-		lastWeekCells = lastWeekCells.concat(tableCells(1, nextMonthDays, {'class': 'disabled'}));
-		addRowToTable(grid, lastWeekCells);
-		// --build additional week if necessary
-		if (fullWeeksCount + 2 < 6) // require calendar to have 6 weeks
-		{
-			addRowToTable(grid, tableCells(
-				nextMonthDays + 1,
-				nextMonthDays + Calendar.DAYS_IN_WEEK,
-				{'class': 'disabled'}));
-		}
-		calendar.appendChild(grid);
-		container.appendChild(calendar);
 		return calendar;
 	},
 	
@@ -187,9 +187,7 @@ var CalendarWidget = Class.create({
 		this._currentMonthGrid = this._nextMonthGrid;
 		var nextMonth = this._currentMonth.nextMonth();
 		var gridsContainer = this._currentMonthGrid.up();
-		this._nextMonthGrid = ((null != nextMonth) ?
-							this._buildCalendarGridForMonth(nextMonth, gridsContainer, this._calendarGridWidth())
-							: null);
+		this._nextMonthGrid = this._buildCalendarGridForMonth(nextMonth, gridsContainer, this._calendarGridWidth());
 		this._isRunningAnimation = false;
 		this._moveAfterAnimationDidEnd();
 	},
@@ -228,9 +226,7 @@ var CalendarWidget = Class.create({
 		this._currentMonthGrid = this._previousMonthGrid;
 		var previousMonth = this._currentMonth.previousMonth();
 		var gridsContainer = this._currentMonthGrid.up();
-		this._previousMonthGrid = ((null != previousMonth) ?
-							this._buildCalendarGridForMonth(previousMonth, gridsContainer, -this._calendarGridWidth())
-							: null);
+		this._previousMonthGrid = this._buildCalendarGridForMonth(previousMonth, gridsContainer, -this._calendarGridWidth());
 		this._isRunningAnimation = false;
 		this._moveAfterAnimationDidEnd();
 	},
