@@ -19,6 +19,12 @@ function tableCells(from, to, attributes)
 	});
 }
 
+var CalendarWidgetConstants = {
+	LEFT: -1,
+	CENTER: 0,
+	RIGHT: 1,
+};
+
 var CalendarWidget = Class.create({
 	initialize: function(widgetContainer)
 	{
@@ -54,7 +60,7 @@ var CalendarWidget = Class.create({
 			var backButton = new Element('a', {'id': 'backButton', 'href': '#'});
 			var backButtonImage = new Element('img', {'src': 'leftArrow.svg'});
 			backButton.appendChild(backButtonImage);
-			backButton.observe('click', this.goPrevious.bindAsEventListener(this));
+			backButton.observe('click', this.goInDirection.bind(this, CalendarWidgetConstants.LEFT));
 			title.appendChild(backButton);
 		}
 		var monthNameLabel = new Element('span');
@@ -66,7 +72,7 @@ var CalendarWidget = Class.create({
 			var forwardButton = new Element('a', {'id': 'forwardButton', 'href': '#'});
 			var forwardButtonImage = new Element('img', {'src': 'rightArrow.svg'});
 			forwardButton.appendChild(forwardButtonImage);
-			forwardButton.observe('click', this.goNext.bindAsEventListener(this));
+			forwardButton.observe('click', this.goInDirection.bind(this, CalendarWidgetConstants.RIGHT));
 			title.appendChild(forwardButton);
 		}
 		container.appendChild(title);
@@ -145,104 +151,123 @@ var CalendarWidget = Class.create({
 		this._monthNameLabel.update(this._currentMonth.monthName() + ', ' + this._currentMonth.year());
 	},
 	
+	_oppositePositionTo: function(position)
+	{
+		return -position;
+	},
+	
+	_monthGridNameAtPosition: function(position)
+	{
+		var result = null;
+		if (position == CalendarWidgetConstants.LEFT)
+		{
+			result = '_previousMonthGrid';
+		}
+		else if (position == CalendarWidgetConstants.CENTER)
+		{
+			result = '_currentMonthGrid';
+		}
+		else if (position == CalendarWidgetConstants.RIGHT)
+		{
+			result = '_nextMonthGrid';
+		}
+		return result;
+	},
+	_monthGridAtPosition: function(position)
+	{
+		var result = null;
+		var monthGridName = this._monthGridNameAtPosition(position);
+		if (monthGridName)
+		{
+			result = this[monthGridName];
+		}
+		return result;
+	},
+	_setMonthGridAtPosition: function(position, newMonthGrid)
+	{
+		var monthGridName = this._monthGridNameAtPosition(position);
+		if (monthGridName)
+		{
+			this[monthGridName] = newMonthGrid;
+		}
+	},
+	
+	_monthAtPosition: function(month, position)
+	{
+		var result = month;
+		if (position == CalendarWidgetConstants.LEFT)
+		{
+			result = month.previousMonth();
+		}
+		else if (position == CalendarWidgetConstants.RIGHT)
+		{
+			result = month.nextMonth();
+		}
+		return result;
+	},
+	
+	_shiftMonthGridsInDirection: function(direction)
+	{
+		var obsoleteMonthGrid = this._monthGridAtPosition(direction);
+		if (obsoleteMonthGrid)
+		{
+			obsoleteMonthGrid.remove();
+		}
+		var oppositeDirection = this._oppositePositionTo(direction);
+		this._setMonthGridAtPosition(direction, this._monthGridAtPosition(CalendarWidgetConstants.CENTER));
+		this._setMonthGridAtPosition(CalendarWidgetConstants.CENTER, this._monthGridAtPosition(oppositeDirection));
+		var gridsContainer = this._currentMonthGrid.up();
+		var newMonth = this._monthAtPosition(this._currentMonth, oppositeDirection);
+		var newMonthGrid = this._buildCalendarGridForMonth(newMonth, gridsContainer, this._calendarGridWidth() * oppositeDirection);
+		this._setMonthGridAtPosition(oppositeDirection, newMonthGrid);
+	},
+	
 	// event handlers
 	//TODO: disable actions during animation
+	goInDirection: function(direction/*, [event]*/)
+	{
+		if (arguments.length > 1)
+		{
+			var event = arguments[1];
+			event.stop();
+		}
+		if (!this._isRunningAnimation)
+		{
+			this._isRunningAnimation = true;
+			var disappearingTable = this._monthGridAtPosition(CalendarWidgetConstants.CENTER);
+			var appearingTable = this._monthGridAtPosition(direction);
+			var animationOffset = this._calendarGridWidth();
+			var moveAnimationOptions = {'x': -animationOffset * direction, 'y': 0, sync: true};
+			new Effect.Parallel([
+				new Effect.Move(disappearingTable, moveAnimationOptions),
+				new Effect.Move(appearingTable, moveAnimationOptions)
+			], {afterFinish: this._goInDirectionAnimationDidEnd.bind(this, direction)});
+		}
+		else
+		{
+			this._movementDirectionAfterAnimation = direction;
+		}
+	},
+	
+	_goInDirectionAnimationDidEnd: function(direction, effect)
+	{
+		this._currentMonth = this._monthAtPosition(this._currentMonth, direction);
+		this._updateMonthNameLabel();
+		this._shiftMonthGridsInDirection(this._oppositePositionTo(direction));
+		this._isRunningAnimation = false;
+		// schedule subsequent move animation if necessary
+		var movementDirection = this._movementDirectionAfterAnimation;
+		this._movementDirectionAfterAnimation = CalendarWidgetConstants.CENTER;
+		if (movementDirection != CalendarWidgetConstants.CENTER)
+		{
+			this.goInDirection(movementDirection);
+		}
+	},
+
 	goToHigherLevel: function(event)
 	{
 		console.log("goToHigherLevel");
 		event.stop();
-	},
-
-	goNext: function(event)
-	{
-		if (event)
-		{
-			event.stop();
-		}
-		if (this._isRunningAnimation)
-		{
-			this._movementDirectionAfterAnimation = 1;
-			return;
-		}
-		this._isRunningAnimation = true;
-		var disappearingTable = this._currentMonthGrid;
-		var appearingTable = this._nextMonthGrid;
-		var animationOffset = this._calendarGridWidth();
-		var moveAnimationOptions = {'x': -animationOffset, 'y': 0, sync: true};
-		new Effect.Parallel([
-			new Effect.Move(disappearingTable, moveAnimationOptions),
-			new Effect.Move(appearingTable, moveAnimationOptions)
-		], {afterFinish: this._goNextAnimationDidEnd.bind(this)});
-	},
-	
-	_goNextAnimationDidEnd: function(effect)
-	{
-		this._currentMonth = this._currentMonth.nextMonth();
-		this._updateMonthNameLabel();
-		if (this._previousMonthGrid)
-		{
-			this._previousMonthGrid.remove();
-		}
-		this._previousMonthGrid = this._currentMonthGrid;
-		this._currentMonthGrid = this._nextMonthGrid;
-		var nextMonth = this._currentMonth.nextMonth();
-		var gridsContainer = this._currentMonthGrid.up();
-		this._nextMonthGrid = this._buildCalendarGridForMonth(nextMonth, gridsContainer, this._calendarGridWidth());
-		this._isRunningAnimation = false;
-		this._moveAfterAnimationDidEnd();
-	},
-
-	goPrevious: function(event)
-	{
-		if (event)
-		{
-			event.stop();
-		}
-		if (this._isRunningAnimation)
-		{
-			this._movementDirectionAfterAnimation = -1;
-			return;
-		}
-		this._isRunningAnimation = true;
-		var disappearingTable = this._currentMonthGrid;
-		var appearingTable = this._previousMonthGrid;
-		var animationOffset = this._calendarGridWidth();
-		var moveAnimationOptions = {'x': animationOffset, 'y': 0, sync: true};
-		new Effect.Parallel([
-			new Effect.Move(disappearingTable, moveAnimationOptions),
-			new Effect.Move(appearingTable, moveAnimationOptions)
-		], {afterFinish: this._goPreviousAnimationDidEnd.bind(this)});
-	},
-	
-	_goPreviousAnimationDidEnd: function(effect)
-	{
-		this._currentMonth = this._currentMonth.previousMonth();
-		this._updateMonthNameLabel();
-		if (this._nextMonthGrid)
-		{
-			this._nextMonthGrid.remove();
-		}
-		this._nextMonthGrid = this._currentMonthGrid;
-		this._currentMonthGrid = this._previousMonthGrid;
-		var previousMonth = this._currentMonth.previousMonth();
-		var gridsContainer = this._currentMonthGrid.up();
-		this._previousMonthGrid = this._buildCalendarGridForMonth(previousMonth, gridsContainer, -this._calendarGridWidth());
-		this._isRunningAnimation = false;
-		this._moveAfterAnimationDidEnd();
-	},
-	
-	_moveAfterAnimationDidEnd: function()
-	{
-		var movementDirection = this._movementDirectionAfterAnimation;
-		this._movementDirectionAfterAnimation = 0;
-		if (movementDirection > 0)
-		{
-			this.goNext();
-		}
-		else if (movementDirection < 0)
-		{
-			this.goPrevious();
-		}
 	},
 
 	selectDay: function(event)
