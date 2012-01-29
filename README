@@ -1,3 +1,11 @@
 It is a project to try out Prototype and Script.aculo.us.
 
 It is a copy of calendar widget in Windows 7.
+
+Backlog:
+- go to higher level
+	- shrink current grid
+	- shrink replacing grid
+- drill down
+- tune animation
+	title change animation
