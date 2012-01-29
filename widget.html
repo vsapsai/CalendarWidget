@@ -89,5 +89,18 @@
 			<span id="movable" style="border: 1px solid green;">Move it</span>
 		</div>
 		<a href="#" onclick="new Effect.Parallel([new Effect.Move($('movable'), { sync: true, x: 60, y: 0}), new Effect.Move($('appearable'), {sync: true, x: 60, y: 0})], {duration: 0.5}); return false;">launch test</a>
+		<hr/>
+		<a href="#" onclick="new Effect.Morph('resizeable', {style: 'font-size: 200%; left: 20px; top: 40px;'}); return false;">resize</a>
+		<a href="#" onclick="new Effect.Scale($('scalable'), 200); return false;">scale</a>
+		<br>
+		<div style="height: 100px; position: relative;">
+			<table id="resizeable" style="border: 1px solid black; font-size:100%; position: absolute; top: 0px; left: 0px;">
+				<tr><td>1</td><td>2</td></tr>
+				<tr><td>3</td><td>4</td></tr>
+			</table>
+		</div>
+		<div id="scalable">
+			scalable content
+		</div>
 	</body>
 </html>
